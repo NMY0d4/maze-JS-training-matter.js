@@ -1,13 +1,14 @@
-const { Engine, Render, Runner, World, Bodies } = Matter;
+const { Engine, Render, Runner, World, Bodies, Body, Events } = Matter;
 
-const cells = 3;
+const cells = 5;
 const width = 600;
 const height = 600;
-const borderSize = 40;
+const borderSize = 6;
 
 const unitLength = width / cells;
 
 const engine = Engine.create();
+engine.world.gravity.y = 0;
 const { world } = engine;
 const render = Render.create({
     element: document.body,
@@ -140,7 +141,7 @@ horizontals.forEach((row, rowIndex) => {
             columnIndex * unitLength + unitLength / 2,
             rowIndex * unitLength + unitLength,
             unitLength,
-            10,
+            5,
             {
                 isStatic: true,
                 render: {
@@ -158,7 +159,7 @@ verticals.forEach((row, rowIndex) => {
         const wall = Bodies.rectangle(
             columnIndex * unitLength + unitLength,
             rowIndex * unitLength + unitLength / 2,
-            10,
+            5,
             unitLength,
             {
                 isStatic: true,
@@ -168,5 +169,58 @@ verticals.forEach((row, rowIndex) => {
             }
         );
         World.add(world, wall);
+    });
+});
+
+//Goal
+const goal = Bodies.rectangle(
+    width - unitLength / 2,
+    height - unitLength / 2,
+    unitLength * 0.4,
+    unitLength * 0.4,
+    {
+        isStatic: true,
+        render: {
+            fillStyle: "cyan",
+        },
+    }
+);
+World.add(world, goal);
+
+//Ball
+const ball = Bodies.circle(
+    unitLength / 2,
+    unitLength / 2,
+    (unitLength * 0.4) / 2,
+    {
+        render: {
+            fillStyle: "limegreen",
+        },
+    }
+);
+
+World.add(world, ball);
+
+document.addEventListener("keydown", (e) => {
+    const { x, y } = ball.velocity;
+    console.log(x, y);
+    if (e.key === "ArrowUp") {
+        Body.setVelocity(ball, { x, y: -5 });
+    }
+    if (e.key === "ArrowRight") {
+        Body.setVelocity(ball, { x: +5, y });
+    }
+    if (e.key === "ArrowDown") {
+        Body.setVelocity(ball, { x, y: +5 });
+    }
+    if (e.key === "ArrowLeft") {
+        Body.setVelocity(ball, { x: -5, y });
+    }
+});
+
+// Win condition
+Events.on(engine, "collisionStart", (e) => {
+    e.pairs.forEach((collision) => {
+        console.log(collision);
     });
 });
