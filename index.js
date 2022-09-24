@@ -143,6 +143,7 @@ horizontals.forEach((row, rowIndex) => {
             unitLength,
             5,
             {
+                label: "wall",
                 isStatic: true,
                 render: {
                     fillStyle: "red",
@@ -162,6 +163,7 @@ verticals.forEach((row, rowIndex) => {
             5,
             unitLength,
             {
+                label: "wall",
                 isStatic: true,
                 render: {
                     fillStyle: "red",
@@ -179,6 +181,7 @@ const goal = Bodies.rectangle(
     unitLength * 0.4,
     unitLength * 0.4,
     {
+        label: "goal",
         isStatic: true,
         render: {
             fillStyle: "cyan",
@@ -193,6 +196,7 @@ const ball = Bodies.circle(
     unitLength / 2,
     (unitLength * 0.4) / 2,
     {
+        label: "ball",
         render: {
             fillStyle: "limegreen",
         },
@@ -203,7 +207,6 @@ World.add(world, ball);
 
 document.addEventListener("keydown", (e) => {
     const { x, y } = ball.velocity;
-    console.log(x, y);
     if (e.key === "ArrowUp") {
         Body.setVelocity(ball, { x, y: -5 });
     }
@@ -221,6 +224,17 @@ document.addEventListener("keydown", (e) => {
 // Win condition
 Events.on(engine, "collisionStart", (e) => {
     e.pairs.forEach((collision) => {
-        console.log(collision);
+        const labels = ["ball", "goal"];
+        if (
+            labels.includes(collision.bodyA.label) &&
+            labels.includes(collision.bodyB.label)
+        ) {
+            world.gravity.y = 1;
+            world.bodies.forEach((body) => {
+                if (body.label === "wall") {
+                    Body.setStatic(body, false);
+                }
+            });
+        }
     });
 });
